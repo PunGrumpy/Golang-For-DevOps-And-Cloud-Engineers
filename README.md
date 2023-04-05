@@ -19,7 +19,15 @@
 - To be able to write applications that integrate with Kubernetes
 - To be able to write applications that integrate with any custom integration that has a Go SDK available
 
+## Our First Golang Application
+
+### Go First Application
+
+![Go First Application](.github/images/go-first-application.png)
+
+![HTTP-get clinet](.github/images/http-get-client.png)
+
 ## Resources
 
-- [PDF Slides](./Golang-for-DevOps-and-Cloud-Engineers.pdf)
+- [PDF Slides](.github/pdf/Golang-for-DevOps-and-Cloud-Engineers.pdf)
 - [GitHub Repo](https://github.com/wardviaene/golang-for-devops-course)
