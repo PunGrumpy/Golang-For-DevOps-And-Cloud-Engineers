@@ -30,4 +30,5 @@
 ## Resources
 
 - [PDF Slides](.github/pdf/Golang-for-DevOps-and-Cloud-Engineers.pdf)
+- [Cheat Sheet](.github/pdf/Go-cheatsheet-2022-11-16.pdf)
 - [GitHub Repo](https://github.com/wardviaene/golang-for-devops-course)
