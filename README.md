@@ -10,7 +10,7 @@
     - Growing ecosystem of partners, communitiesm and tools
 
 
-## Course Objectives
+## Objectives
 
 - To be able to read, understand and write Go code
 - To be able to write enterprise ready applications
