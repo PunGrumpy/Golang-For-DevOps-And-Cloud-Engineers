@@ -26,7 +26,7 @@ func main() {
 	flag.StringVar(&arg, "url", "", "URL to request")
 	flag.Parse()
 	if len(arg) < 1 {
-		fmt.Println("Please provide a URL")
+		fmt.Printf("Please provide a URL\nUsage: go run main.go -h for help\n")
 		os.Exit(1)
 	}
 	rateLimiterInstance := &RateLimiter{}
