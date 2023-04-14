@@ -8,6 +8,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"io"
 	"net/http"
@@ -21,7 +22,9 @@ type RateLimiter struct {
 }
 
 func main() {
-	arg := os.Args[1]
+	var arg string
+	flag.StringVar(&arg, "url", "", "URL to request")
+	flag.Parse()
 	if len(arg) < 1 {
 		fmt.Println("Please provide a URL")
 		os.Exit(1)
