@@ -1,4 +1,4 @@
-module main
+module github.com/PunGrumpy/Golang-For-DevOps-And-Cloud-Engineers/14-aws-s3
 
 go 1.20
 
