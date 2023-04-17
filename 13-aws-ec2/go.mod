@@ -1,4 +1,4 @@
-module main
+module github.com/PunGrumpy/Golang-For-DevOps-And-Cloud-Engineers/13-aws-ec2
 
 go 1.20
 
