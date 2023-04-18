@@ -1,3 +1,4 @@
 *.exe
 *.pem
+*.pub
 .vscode
