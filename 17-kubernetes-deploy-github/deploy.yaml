@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: github-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: github-deploy
+  template:
+    metadata:
+      labels:
+        app: github-deploy
+    spec:
+      serviceAccountName: github-deploy
+      containers:
+        - name: github-deploy
+          image: pungrumpy/github-deploy
+          ports:
+            - name: http-port
+              containerPort: 8080
+          resources:
+            limits:
+              cpu: 100m
+              memory: 128Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          env:
+            - name: GITHUB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: github-deploy
+                  key: github-token
+                  optional: false
+            - name: WEBHOOK_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: github-deploy
+                  key: webhook-secret
+                  optional: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: github-deploy
+spec:
+  ports:
+    - port: 8080
+      protocol: TCP
+  selector:
+    app: github-deploy
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: github-deploy
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: default
+  name: github-deploy
+rules:
+  - apiGroups: ['apps']
+    resources: ['deployments']
+    verbs: ['get', 'list', 'watch', 'create', 'update', 'patch', 'delete']
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: github-deploy
+  namespace: default
+subjects:
+  - kind: ServiceAccount
+    name: github-deploy
+    namespace: default
+roleRef:
+  kind: Role
+  name: github-deploy
+  apiGroup: rbac.authorization.k8s.io
