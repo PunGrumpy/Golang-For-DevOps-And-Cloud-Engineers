@@ -1,0 +1,8 @@
+github.com/wardviaene/golang-for-devops-course/ssh-demo v0.0.0-20230312210556-3c2dc7955aa5 h1:2h4AFa7dQ/whlMKstDnKh25Tu7LBvy6fvJlnlqKL2hI=
+github.com/wardviaene/golang-for-devops-course/ssh-demo v0.0.0-20230312210556-3c2dc7955aa5/go.mod h1:nMRrSdJ6buN2/nVCX4zAr1VTIzeZNqK7SgTepO1zRdA=
+golang.org/x/crypto v0.8.0 h1:pd9TJtTueMTVQXzk8E2XESSMQDj/U7OUu0PqJqPXQjQ=
+golang.org/x/crypto v0.8.0/go.mod h1:mRqEX+O9/h5TFCrQhkgjo2yKi0yYA+9ecGkdQoHrywE=
+golang.org/x/sys v0.7.0 h1:3jlCCIQZPdOYu1h8BkNvLz8Kgwtae2cagcG/VamtZRU=
+golang.org/x/sys v0.7.0/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
+golang.org/x/term v0.7.0 h1:BEvjmm5fURWqcfbSKTdpkDXYBrUS1c0m8agp14W48vQ=
+golang.org/x/term v0.7.0/go.mod h1:P32HKFT3hSsZrRxla30E9HqToFYAQPCMs/zFMBUFqPY=
