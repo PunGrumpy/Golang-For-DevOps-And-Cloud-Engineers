@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"os"
+
+	"github.com/wardviaene/golang-for-devops-course/ssh-demo"
 )
 
 func main() {
