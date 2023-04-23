@@ -109,6 +109,7 @@ func createTerminal(conn *ssh.ServerConn, channel ssh.Channel) {
 	go func() {
 		defer channel.Close()
 		termInstace.Write([]byte("Welcome to the server\n"))
+		termInstace.Write([]byte("Type 'help' to see the available commands\n"))
 		for {
 			line, err := termInstace.ReadLine()
 			if err != nil {
@@ -118,17 +119,13 @@ func createTerminal(conn *ssh.ServerConn, channel ssh.Channel) {
 			switch line {
 			case "whoami":
 				termInstace.Write([]byte(execCommand(conn, []byte("whoami"))))
-			case "exit":
-				termInstace.Write([]byte("Bye\n"))
-				return
 			case "clear":
-				termInstace.Write([]byte("\033[H\033[2J"))
-			case "ls":
-				termInstace.Write([]byte("No files\n"))
+				termInstace.Write([]byte(execCommand(conn, []byte("clear"))))
 			case "help":
-				termInstace.Write([]byte("Available commands:\n"))
-				termInstace.Write([]byte("whoami\n"))
-				termInstace.Write([]byte("exit\n"))
+				termInstace.Write([]byte(execCommand(conn, []byte("help"))))
+			case "exit":
+				termInstace.Write([]byte(execCommand(conn, []byte("exit"))))
+				return
 			default:
 				termInstace.Write([]byte(fmt.Sprintf("Unknown command: %s\n", line)))
 			}
@@ -140,6 +137,12 @@ func execCommand(conn *ssh.ServerConn, payload []byte) string {
 	switch string(payload) {
 	case "whoami":
 		return fmt.Sprintf("You are %s\n", conn.Conn.User())
+	case "clear":
+		return "\033[H\033[2J"
+	case "help":
+		return "- Available commands:\n- whoami \t print the username\n- clear \t clear the screen\nexit \t exit the shell\n"
+	case "exit":
+		return "Bye\n"
 	default:
 		return fmt.Sprintf("Unknown command: %s\n", string(payload))
 	}
