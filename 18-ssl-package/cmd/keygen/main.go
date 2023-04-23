@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 
-	// "github.com/wardviaene/golang-for-devops-course/ssh-demo"
 	"github.com/PunGrumpy/go-ssh-key/ssh"
 )
 
