@@ -1,4 +1,4 @@
-module github.com/PunGrumpy/Golang-For-DevOps-And-Cloud-Engineers/18-ssl-package
+module github.com/PunGrumpy/Golang-For-DevOps-And-Cloud-Engineers/18-ssh-package
 
 go 1.20
 
