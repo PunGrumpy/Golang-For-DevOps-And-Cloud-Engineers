@@ -1,6 +1,7 @@
 package ssh
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"net"
@@ -41,6 +42,7 @@ func StartServer(privateKey []byte, authorizedKey []byte) error {
 
 	config.AddHostKey(private)
 
+	fmt.Println("Listening on port 2023")
 	listener, err := net.Listen("tcp", "0.0.0.0:2023")
 	if err != nil {
 		return fmt.Errorf("unable to listen: %v", err)
@@ -83,10 +85,17 @@ func handleConnection(conn *ssh.ServerConn, chans <-chan ssh.NewChannel) {
 			for req := range in {
 				fmt.Printf("request type made by client: %s\n", req.Type)
 				switch req.Type {
+				case "exec":
+					payload := bytes.TrimPrefix(req.Payload, []byte{0, 0, 0, 6})
+					channel.Write([]byte(execCommand(conn, payload)))
+					channel.SendRequest("exit-status", false, []byte{0, 0, 0, 0})
+					req.Reply(true, nil)
+					channel.Close()
 				case "shell":
 					req.Reply(req.Type == "shell", nil)
 				case "pty-req":
 					createTerminal(conn, channel)
+					req.Reply(true, nil)
 				default:
 					req.Reply(false, nil)
 				}
@@ -108,10 +117,14 @@ func createTerminal(conn *ssh.ServerConn, channel ssh.Channel) {
 			}
 			switch line {
 			case "whoami":
-				termInstace.Write([]byte(fmt.Sprintf("You are: %s\n", conn.Conn.User())))
+				termInstace.Write([]byte(execCommand(conn, []byte("whoami"))))
 			case "exit":
 				termInstace.Write([]byte("Bye\n"))
 				return
+			case "clear":
+				termInstace.Write([]byte("\033[H\033[2J"))
+			case "ls":
+				termInstace.Write([]byte("No files\n"))
 			case "help":
 				termInstace.Write([]byte("Available commands:\n"))
 				termInstace.Write([]byte("whoami\n"))
@@ -121,4 +134,13 @@ func createTerminal(conn *ssh.ServerConn, channel ssh.Channel) {
 			}
 		}
 	}()
+}
+
+func execCommand(conn *ssh.ServerConn, payload []byte) string {
+	switch string(payload) {
+	case "whoami":
+		return fmt.Sprintf("You are %s\n", conn.Conn.User())
+	default:
+		return fmt.Sprintf("Unknown command: %s\n", string(payload))
+	}
 }

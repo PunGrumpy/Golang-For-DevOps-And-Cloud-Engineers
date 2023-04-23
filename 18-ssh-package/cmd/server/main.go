@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"github.com/wardviaene/golang-for-devops-course/ssh-demo"
+	ssh "github.com/PunGrumpy/Golang-For-DevOps-And-Cloud-Engineers/18-ssh-package"
 )
 
 func main() {
