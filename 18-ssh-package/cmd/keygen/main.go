@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/PunGrumpy/go-ssh-key/ssh"
+	ssh "github.com/PunGrumpy/Golang-For-DevOps-And-Cloud-Engineers/18-ssh-package"
 )
 
 func main() {
