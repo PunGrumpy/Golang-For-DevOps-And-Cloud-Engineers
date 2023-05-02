@@ -1,6 +1,6 @@
 module github.com/PunGrumpy/Golang-For-DevOps-And-Cloud-Engineers/19-idp/oidc-demo
 
-go 1.18
+go 1.20
 
 require (
 	github.com/golang-jwt/jwt/v4 v4.4.2
