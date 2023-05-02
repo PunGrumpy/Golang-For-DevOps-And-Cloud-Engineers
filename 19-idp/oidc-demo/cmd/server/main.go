@@ -8,11 +8,11 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/wardviaene/golang-for-devops-course/oidc-start/pkg/server"
+	"github.com/PunGrumpy/Golang-For-DevOps-And-Cloud-Engineers/19-idp/oidc-demo/pkg/server"
 	"github.com/wardviaene/golang-for-devops-course/ssh-demo"
 )
 
-const configFile = ""
+const configFile = "config.yaml"
 
 func main() {
 	var (

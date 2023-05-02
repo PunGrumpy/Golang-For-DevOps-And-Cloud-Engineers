@@ -1,0 +1,7 @@
+url: 'http://localhost:8080'
+apps:
+  app1:
+    clientID: '1-2-3-4-5'
+    clientSecret: 'secret'
+    issuer: 'http://localhost:8080'
+    redirectURIs: ['http://localhost:8081/callback']
