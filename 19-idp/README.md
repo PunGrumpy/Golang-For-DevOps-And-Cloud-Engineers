@@ -99,3 +99,11 @@ sequenceDiagram
 git clone #PROJECT_URL#
 cd #PROJECT_NAME/oidc-start#
 ```
+
+---
+
+# OpenID Connect (OIDC) Demo
+
+```bash
+curl localhost:8080/authorization?client_id=1-2-3-4-5&redirect_uri=http://localhost:8081/callback&scope=openid&response_type=code&state=randomstring
+```

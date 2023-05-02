@@ -11,3 +11,11 @@ type AppConfig struct {
 	Issuer       string   `yaml:"issuer"`
 	RedirectURIs []string `yaml:"redirectURIs"`
 }
+type LoginRequest struct {
+	ClientID     string
+	RedirectURI  string
+	ResponseType string
+	State        string
+	Scope        string
+	AppConfig    AppConfig
+}
