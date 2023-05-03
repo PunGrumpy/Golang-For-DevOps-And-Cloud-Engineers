@@ -24,6 +24,10 @@ func (s *server) login(w http.ResponseWriter, r *http.Request) {
 			returnError(w, fmt.Errorf("parse form error: %w", err))
 		}
 		sessionID := r.PostForm.Get("sessionID")
+		if sessionID == "" {
+			returnError(w, fmt.Errorf("no sessionID provided"))
+			return
+		}
 		loginRequest, ok := s.LoginRequest[sessionID]
 		if !ok {
 			returnError(w, fmt.Errorf("no sessionID provided"))
@@ -32,6 +36,7 @@ func (s *server) login(w http.ResponseWriter, r *http.Request) {
 		auth, user, err := users.Auth(r.PostForm.Get("login"), r.PostForm.Get("password"), "")
 		if err != nil {
 			returnError(w, fmt.Errorf("authenication error: %w", err))
+			return
 		}
 
 		if auth {
@@ -46,10 +51,10 @@ func (s *server) login(w http.ResponseWriter, r *http.Request) {
 			delete(s.LoginRequest, sessionID)
 
 			w.Header().Add("location", fmt.Sprintf("%s?code=%s&state=%s", loginRequest.RedirectURI, code, loginRequest.State))
-			w.WriteHeader(r.Response.StatusCode)
+			w.WriteHeader(http.StatusFound)
 		} else {
 			w.Write([]byte("login failed"))
-			w.WriteHeader(r.Response.StatusCode)
+			w.WriteHeader(http.StatusUnauthorized)
 		}
 		return
 	}
