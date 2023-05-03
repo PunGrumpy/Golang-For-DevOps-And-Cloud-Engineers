@@ -1,5 +1,11 @@
 package server
 
+import (
+	"time"
+
+	"github.com/PunGrumpy/Golang-For-DevOps-And-Cloud-Engineers/19-idp/oidc-demo/pkg/users"
+)
+
 type Config struct {
 	Apps      map[string]AppConfig `yaml:"apps"`
 	Url       string               `yaml:"url"`
@@ -18,4 +24,6 @@ type LoginRequest struct {
 	State        string
 	Scope        string
 	AppConfig    AppConfig
+	CodeIssuedAt time.Time
+	User users.User
 }
