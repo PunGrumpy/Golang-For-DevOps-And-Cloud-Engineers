@@ -25,5 +25,5 @@ type LoginRequest struct {
 	Scope        string
 	AppConfig    AppConfig
 	CodeIssuedAt time.Time
-	User users.User
+	User         users.User
 }

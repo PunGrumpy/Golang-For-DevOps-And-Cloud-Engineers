@@ -45,11 +45,11 @@ func (s *server) login(w http.ResponseWriter, r *http.Request) {
 
 			delete(s.LoginRequest, sessionID)
 
-			w.WriteHeader(r.Response.StatusCode)
 			w.Header().Add("location", fmt.Sprintf("%s?code=%s&state=%s", loginRequest.RedirectURI, code, loginRequest.State))
-		} else {
 			w.WriteHeader(r.Response.StatusCode)
-			w.Header().Add("location", fmt.Sprintf("%s?error=access_denied&state=%s", loginRequest.RedirectURI, loginRequest.State))
+		} else {
+			w.Write([]byte("login failed"))
+			w.WriteHeader(r.Response.StatusCode)
 		}
 		return
 	}
