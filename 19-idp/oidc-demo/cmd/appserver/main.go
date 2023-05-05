@@ -63,7 +63,7 @@ func (a *app) index(w http.ResponseWriter, r *http.Request) {
 			<style>
 				body {
 				font-family: Arial, sans-serif;
-				background-image: url('https://pbs.twimg.com/media/FsdzG2ZX0AAi20t?format=jpg&name=4096x4096');
+				background-image: url('https://pbs.twimg.com/media/Fsbdo5AWAAEZ-Zq?format=jpg&name=4096x4096');
 				background-size: cover;
 				background-position: center;
 				display: flex;
@@ -79,7 +79,7 @@ func (a *app) index(w http.ResponseWriter, r *http.Request) {
 					max-width: 480px;
 					margin: 0 auto;
 					padding: 10rem;
-					background: rgba(0, 0, 0, 0.7);
+					background: rgba(0, 0, 0, 0.5);
 					backdrop-filter: blur(10px);
 					border-radius: 0.5rem;
 					box-shadow: 0px 30px 60px rgba(0, 0, 0, 0.1),
@@ -112,7 +112,7 @@ func (a *app) index(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *app) callback(w http.ResponseWriter, r *http.Request) {
-
+	w.Write([]byte(`Callback: ` + r.URL.Query().Get("code")))
 }
 
 func returnError(w http.ResponseWriter, err error) {
