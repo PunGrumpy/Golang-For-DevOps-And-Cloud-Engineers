@@ -112,7 +112,31 @@ func (a *app) index(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *app) callback(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte(`Callback: ` + r.URL.Query().Get("code")))
+	loadEnv()
+	oidcEndpoint := os.Getenv("OIDC_ENDPOINT")
+	if oidcEndpoint == "" {
+		returnError(w, fmt.Errorf("OIDC_ENDPOINT is required"))
+		return
+	}
+
+	discovery, err := oidc.ParseDiscovery(oidcEndpoint + "/.well-known/openid-configuration")
+	if err != nil {
+		returnError(w, fmt.Errorf("Error parsing discovery: %s", err))
+		return
+	}
+
+	if _, ok := a.states[r.URL.Query().Get("state")]; !ok {
+		returnError(w, fmt.Errorf("Invalid state"))
+		return
+	}
+
+	_, claims, err := getTokenFromCode(discovery.TokenEndpoint, discovery.JwksURI, redirectUri, os.Getenv("CLIENT_ID"), os.Getenv("CLIENT_SECRET"), r.URL.Query().Get("code"))
+	if err != nil {
+		returnError(w, fmt.Errorf("Error getting token from code: %s", err))
+		return
+	}
+
+	w.Write([]byte(fmt.Sprint("Token: ", claims.Subject)))
 }
 
 func returnError(w http.ResponseWriter, err error) {
