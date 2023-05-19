@@ -1,9 +1,12 @@
 package main
 
 import (
+	"crypto/rsa"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
+	"math/big"
 	"net/http"
 	"net/url"
 
@@ -43,12 +46,60 @@ func getTokenFromCode(tokenUrl, jwksUrl, redirectUri, clientID, clientSecret, co
 	}
 
 	claims := &jwt.RegisteredClaims{}
-	parsedToken, err := jwt.ParseWithClaims(token.IDToken, claims, func(*jwt.Token) (interface{}, error) {
-		return nil, nil
+	parsedToken, err := jwt.ParseWithClaims(token.IDToken, claims, func(token *jwt.Token) (interface{}, error) {
+		kid, ok := token.Header["kid"]
+		if !ok {
+			return nil, fmt.Errorf("No kid in token header")
+		}
+		publicKey, err := getPublicKeyFromJwks(jwksUrl, kid.(string))
+		if err != nil {
+			return nil, fmt.Errorf("Error getting public key: %s", err)
+		}
+
+		return publicKey, nil
 	})
 	if err != nil {
 		return nil, nil, fmt.Errorf("Error parsing token: %s", err)
 	}
 
-	return parsedToken, claims, fmt.Errorf("Not implemented")
+	return parsedToken, claims, nil
+}
+
+func getPublicKeyFromJwks(jwksUrl string, kid string) (*rsa.PublicKey, error) {
+	res, err := http.Get(jwksUrl)
+	if err != nil {
+		return nil, fmt.Errorf("Error getting jwks: %s", err)
+	}
+	defer res.Body.Close()
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, fmt.Errorf("Error reading jwks body: %s", err)
+	}
+	if res.StatusCode != 200 {
+		return nil, fmt.Errorf("Error getting jwks: %s", body)
+	}
+
+	// Parse jwks
+	var jwks oidc.Jwks
+	err = json.Unmarshal(body, &jwks)
+	if err != nil {
+		return nil, fmt.Errorf("Error unmarshalling jwks: %s", err)
+	}
+
+	for _, jwksKeyEntry := range jwks.Keys {
+		if jwksKeyEntry.Kid == kid {
+			nBytes, err := base64.StdEncoding.DecodeString(jwksKeyEntry.N)
+			if err != nil {
+				return nil, fmt.Errorf("Error decoding N: %s", err)
+			}
+			n := big.NewInt(0)
+			n.SetBytes(nBytes)
+			return &rsa.PublicKey{
+				N: n,
+				E: 65537,
+			}, nil
+		}
+	}
+
+	return nil, fmt.Errorf("No public key found for kid: %s", kid)
 }
