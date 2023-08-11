@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 
@@ -42,13 +43,13 @@ func (a *app) index(w http.ResponseWriter, r *http.Request) {
 
 	discovery, err := oidc.ParseDiscovery(oidcEndpoint + "/.well-known/openid-configuration")
 	if err != nil {
-		returnError(w, fmt.Errorf("Error parsing discovery: %s", err))
+		returnError(w, fmt.Errorf("error parsing discovery: %s", err))
 		return
 	}
 
 	state, err := oidc.GetRandomString(64)
 	if err != nil {
-		returnError(w, fmt.Errorf("Error generating state: %s", err))
+		returnError(w, fmt.Errorf("error generating state: %s", err))
 		return
 	}
 
@@ -121,22 +122,43 @@ func (a *app) callback(w http.ResponseWriter, r *http.Request) {
 
 	discovery, err := oidc.ParseDiscovery(oidcEndpoint + "/.well-known/openid-configuration")
 	if err != nil {
-		returnError(w, fmt.Errorf("Error parsing discovery: %s", err))
+		returnError(w, fmt.Errorf("error parsing discovery: %s", err))
 		return
 	}
 
 	if _, ok := a.states[r.URL.Query().Get("state")]; !ok {
-		returnError(w, fmt.Errorf("Invalid state"))
+		returnError(w, fmt.Errorf("invalid state"))
 		return
 	}
 
-	_, claims, err := getTokenFromCode(discovery.TokenEndpoint, discovery.JwksURI, redirectUri, os.Getenv("CLIENT_ID"), os.Getenv("CLIENT_SECRET"), r.URL.Query().Get("code"))
+	accessToken, claims, err := getTokenFromCode(discovery.TokenEndpoint, discovery.JwksURI, redirectUri, os.Getenv("CLIENT_ID"), os.Getenv("CLIENT_SECRET"), r.URL.Query().Get("code"))
 	if err != nil {
-		returnError(w, fmt.Errorf("Error getting token from code: %s", err))
+		returnError(w, fmt.Errorf("error getting token from code: %s", err))
 		return
 	}
 
-	w.Write([]byte(fmt.Sprint("Token: ", claims.Subject)))
+	req, err := http.NewRequest("GET", discovery.UserinfoEndpoint, nil)
+	if err != nil {
+		returnError(w, fmt.Errorf("error creating request: %s", err))
+		return
+	}
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", accessToken.Raw))
+
+	client := &http.Client{}
+
+	res, err := client.Do(req)
+	if err != nil {
+		returnError(w, fmt.Errorf("error doing request: %s", err))
+		return
+	}
+	defer res.Body.Close()
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		returnError(w, fmt.Errorf("error reading body: %s", err))
+		return
+	}
+
+	w.Write([]byte(fmt.Sprintf("Token: %s\n\nClaims: %s\n\nUserinfo: %s", accessToken.Raw, claims, body)))
 }
 
 func returnError(w http.ResponseWriter, err error) {

@@ -35,62 +35,79 @@ func getTokenFromCode(tokenUrl, jwksUrl, redirectUri, clientID, clientSecret, co
 		return nil, nil, err
 	}
 	if res.StatusCode != 200 {
-		return nil, nil, fmt.Errorf("Error getting token: %s", body)
+		return nil, nil, fmt.Errorf("error getting token: %s", body)
 	}
 
 	var token oidc.Token
 
 	err = json.Unmarshal(body, &token)
 	if err != nil {
-		return nil, nil, fmt.Errorf("Error unmarshalling token: %s", err)
+		return nil, nil, fmt.Errorf("error unmarshalling token: %s", err)
 	}
 
 	claims := &jwt.RegisteredClaims{}
-	parsedToken, err := jwt.ParseWithClaims(token.IDToken, claims, func(token *jwt.Token) (interface{}, error) {
+	_, err = jwt.ParseWithClaims(token.IDToken, claims, func(token *jwt.Token) (interface{}, error) {
 		kid, ok := token.Header["kid"]
 		if !ok {
-			return nil, fmt.Errorf("No kid in token header")
+			return nil, fmt.Errorf("no kid in token header")
 		}
 		publicKey, err := getPublicKeyFromJwks(jwksUrl, kid.(string))
 		if err != nil {
-			return nil, fmt.Errorf("Error getting public key: %s", err)
+			return nil, fmt.Errorf("error getting public key: %s", err)
 		}
 
 		return publicKey, nil
 	})
 	if err != nil {
-		return nil, nil, fmt.Errorf("Error parsing token: %s", err)
+		return nil, nil, fmt.Errorf("error parsing token: %s", err)
 	}
 
-	return parsedToken, claims, nil
+	AccessTokenClaims := &jwt.RegisteredClaims{}
+	parsedAccessToken, err := jwt.ParseWithClaims(token.AccessToken, AccessTokenClaims, func(token *jwt.Token) (interface{}, error) {
+		kid, ok := token.Header["kid"]
+		if !ok {
+			return nil, fmt.Errorf("no kid in token header")
+		}
+		publicKey, err := getPublicKeyFromJwks(jwksUrl, kid.(string))
+		if err != nil {
+			return nil, fmt.Errorf("error getting public key: %s", err)
+		}
+
+		return publicKey, nil
+	})
+	if err != nil {
+		return nil, nil, fmt.Errorf("error parsing token: %s", err)
+	}
+
+	return parsedAccessToken, claims, nil
 }
 
 func getPublicKeyFromJwks(jwksUrl string, kid string) (*rsa.PublicKey, error) {
 	res, err := http.Get(jwksUrl)
 	if err != nil {
-		return nil, fmt.Errorf("Error getting jwks: %s", err)
+		return nil, fmt.Errorf("error getting jwks: %s", err)
 	}
 	defer res.Body.Close()
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
-		return nil, fmt.Errorf("Error reading jwks body: %s", err)
+		return nil, fmt.Errorf("error reading jwks body: %s", err)
 	}
 	if res.StatusCode != 200 {
-		return nil, fmt.Errorf("Error getting jwks: %s", body)
+		return nil, fmt.Errorf("error getting jwks: %s", body)
 	}
 
 	// Parse jwks
 	var jwks oidc.Jwks
 	err = json.Unmarshal(body, &jwks)
 	if err != nil {
-		return nil, fmt.Errorf("Error unmarshalling jwks: %s", err)
+		return nil, fmt.Errorf("error unmarshalling jwks: %s", err)
 	}
 
 	for _, jwksKeyEntry := range jwks.Keys {
 		if jwksKeyEntry.Kid == kid {
 			nBytes, err := base64.StdEncoding.DecodeString(jwksKeyEntry.N)
 			if err != nil {
-				return nil, fmt.Errorf("Error decoding N: %s", err)
+				return nil, fmt.Errorf("error decoding N: %s", err)
 			}
 			n := big.NewInt(0)
 			n.SetBytes(nBytes)
@@ -101,5 +118,5 @@ func getPublicKeyFromJwks(jwksUrl string, kid string) (*rsa.PublicKey, error) {
 		}
 	}
 
-	return nil, fmt.Errorf("No public key found for kid: %s", kid)
+	return nil, fmt.Errorf("no public key found for kid: %s", kid)
 }
