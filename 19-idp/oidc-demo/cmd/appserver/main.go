@@ -131,7 +131,7 @@ func (a *app) callback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	accessToken, claims, err := getTokenFromCode(discovery.TokenEndpoint, discovery.JwksURI, redirectUri, os.Getenv("CLIENT_ID"), os.Getenv("CLIENT_SECRET"), r.URL.Query().Get("code"))
+	tokens, claims, err := getTokenFromCode(discovery.TokenEndpoint, discovery.JwksURI, redirectUri, os.Getenv("CLIENT_ID"), os.Getenv("CLIENT_SECRET"), r.URL.Query().Get("code"))
 	if err != nil {
 		returnError(w, fmt.Errorf("error getting token from code: %s", err))
 		return
@@ -142,7 +142,7 @@ func (a *app) callback(w http.ResponseWriter, r *http.Request) {
 		returnError(w, fmt.Errorf("error creating request: %s", err))
 		return
 	}
-	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", accessToken.Raw))
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", tokens[1].Raw))
 
 	client := &http.Client{}
 
@@ -158,7 +158,7 @@ func (a *app) callback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte(fmt.Sprintf("Token: %s\n\nClaims: %s\n\nUserinfo: %s", accessToken.Raw, claims, body)))
+	w.Write([]byte(fmt.Sprintf("Token: %s\n\nClaims: %s\n\nUserinfo: %s", tokens[0].Raw, claims, body)))
 }
 
 func returnError(w http.ResponseWriter, err error) {

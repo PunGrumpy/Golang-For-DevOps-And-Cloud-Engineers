@@ -15,7 +15,7 @@ import (
 )
 
 // gets token from tokenUrl validating token with jwksUrl and returning token & claims
-func getTokenFromCode(tokenUrl, jwksUrl, redirectUri, clientID, clientSecret, code string) (*jwt.Token, *jwt.RegisteredClaims, error) {
+func getTokenFromCode(tokenUrl, jwksUrl, redirectUri, clientID, clientSecret, code string) ([]*jwt.Token, *jwt.RegisteredClaims, error) {
 	values := url.Values{}
 	values.Add("grant_type", "authorization_code")
 	values.Add("client_id", clientID)
@@ -46,7 +46,7 @@ func getTokenFromCode(tokenUrl, jwksUrl, redirectUri, clientID, clientSecret, co
 	}
 
 	claims := &jwt.RegisteredClaims{}
-	_, err = jwt.ParseWithClaims(token.IDToken, claims, func(token *jwt.Token) (interface{}, error) {
+	parseIdToken, err := jwt.ParseWithClaims(token.IDToken, claims, func(token *jwt.Token) (interface{}, error) {
 		kid, ok := token.Header["kid"]
 		if !ok {
 			return nil, fmt.Errorf("no kid in token header")
@@ -79,7 +79,7 @@ func getTokenFromCode(tokenUrl, jwksUrl, redirectUri, clientID, clientSecret, co
 		return nil, nil, fmt.Errorf("error parsing token: %s", err)
 	}
 
-	return parsedAccessToken, claims, nil
+	return []*jwt.Token{parseIdToken, parsedAccessToken}, claims, nil
 }
 
 func getPublicKeyFromJwks(jwksUrl string, kid string) (*rsa.PublicKey, error) {
