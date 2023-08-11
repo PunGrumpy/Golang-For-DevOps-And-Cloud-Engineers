@@ -1,7 +1,12 @@
-url: 'http://localhost:8080'
+url: 'https://9afc-61-90-30-80.ngrok-free.app'
 apps:
   app1:
     clientID: '1-2-3-4-5'
     clientSecret: 'secret'
-    issuer: 'http://localhost:8080'
+    issuer: 'https://9afc-61-90-30-80.ngrok-free.app'
     redirectURIs: ['http://localhost:8081/callback']
+  jenkins:
+    clientID: '1-2-3-4-5'
+    clientSecret: 'secret'
+    issuer: 'https://9afc-61-90-30-80.ngrok-free.app'
+    redirectURIs: ['http://localhost:8090/securityRealm/finishLogin']
